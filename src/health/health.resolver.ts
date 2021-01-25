@@ -1,44 +1,20 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { HealthCheckResult, HealthIndicatorResult } from '@nestjs/terminus';
-import { Health, HealthIndicator } from './dtos/health.dto';
+import { Query, Resolver } from '@nestjs/graphql';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { InjectPubSub } from '../pubsub';
 import { HealthService } from './health.service';
 
-@Resolver(() => Health)
+@Resolver()
 export class HealthResolver {
-  constructor(private readonly healthService: HealthService) {}
-  @Query(() => Health)
-  async userServiceHealth() {
+  constructor(
+    private readonly healthService: HealthService,
+    @InjectPubSub()
+    private readonly _pubsub: RedisPubSub,
+  ) {}
+
+  // replace <x> with service name
+  @Query(() => Boolean)
+  async xServiceHealth() {
     const healthResult = await this.healthService.check();
-
-    console.log(healthResult);
-    return healthResult;
-  }
-
-  @ResolveField()
-  error(root: HealthCheckResult) {
-    return this.mapDetails(root.error);
-  }
-
-  @ResolveField()
-  info(root: HealthCheckResult) {
-    return this.mapDetails(root.info);
-  }
-
-  @ResolveField()
-  details(root: HealthIndicatorResult) {
-    return this.mapDetails(root.details);
-  }
-
-  private mapDetails(indicator: HealthIndicatorResult): HealthIndicator[] {
-    const result = Object.keys(indicator).map<HealthIndicator>(key => ({
-      name: key,
-      status: indicator[key].status,
-      optionalKeys: [],
-      //    Object.keys(indicator[key])
-      //     .filter(x => x !== 'status')
-      //     .map(x => ({ key: x, value: indicator[key][x] })),
-    }));
-
-    return result;
+    return healthResult.status === 'ok';
   }
 }
