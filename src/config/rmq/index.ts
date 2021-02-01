@@ -9,7 +9,6 @@ export interface IRmqConfigProps {
 
 export default registerAs<ConfigFactory<IRmqConfigProps>>('rmq', () => ({
   url: process.env.RMQ_URL,
-  serviceQueueName:
-    process.env.RMQ_SERVICE_QUEUE_NAME || 'notification-processor-service',
+  serviceQueueName: process.env.RMQ_SERVICE_QUEUE_NAME || 'user-service',
   prefetchCount: +process.env.RMQ_SERVICE_PREFETCH || 100,
 }));

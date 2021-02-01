@@ -2,14 +2,14 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { RmqOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { IConfigProps } from './config';
+import { IRmqConfigProps } from './config/rmq';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
 
-  const rmqOptions = config.get<IConfigProps['rmq']>('rmq');
+  const rmqOptions = config.get<IRmqConfigProps>('rmq');
 
   await app.connectMicroservice<RmqOptions>({
     transport: Transport.RMQ,
