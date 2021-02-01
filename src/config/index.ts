@@ -1,7 +1,11 @@
-import { IAppConfigProps } from './app';
-import { IRmqConfigProps } from './rmq';
+import {
+  IAppConfigProps,
+  IMailgunConfigProps,
+  IRmqConfigProps,
+} from './subconfigs';
 
 export interface IConfigProps {
   app: IAppConfigProps;
   rmq: IRmqConfigProps;
+  mailgun: IMailgunConfigProps;
 }
