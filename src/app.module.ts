@@ -4,11 +4,9 @@ import { HealthModule } from './health/health.module';
 import { ConfigModule } from './config/config.module';
 import { PromModule } from '@digikare/nestjs-prom';
 import { name, version } from '../package.json';
-import { GraphQLFederationModule } from '@nestjs/graphql';
+import { GraphQLFederationModule, GraphQLModule } from '@nestjs/graphql';
 import { GraphqlModule } from './graphql/graphql.module';
 import { GqlConfigService } from './graphql/graphql-config.service';
-import { MailerModule } from './mailer/mailer.module';
-import { MailgunModule } from './mailgun/mailgun.module';
 
 @Module({
   imports: [
@@ -29,8 +27,6 @@ import { MailgunModule } from './mailgun/mailgun.module';
     HealthModule,
     ConfigModule,
     GraphqlModule,
-    MailerModule,
-    MailgunModule,
   ],
   controllers: [AppController],
   providers: [],
