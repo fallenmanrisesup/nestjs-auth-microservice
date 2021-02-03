@@ -9,18 +9,18 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
 
-  // const rmqOptions = config.get<IConfigProps['rmq']>('rmq');
+  const rmqOptions = config.get<IConfigProps['rmq']>('rmq');
 
-  // await app.connectMicroservice<RmqOptions>({
-  //   transport: Transport.RMQ,
-  //   options: {
-  //     urls: [rmqOptions.url],
-  //     queue: rmqOptions.serviceQueueName,
-  //     prefetchCount: rmqOptions.prefetchCount,
-  //   },
-  // });
+  await app.connectMicroservice<RmqOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [rmqOptions.url],
+      queue: rmqOptions.serviceQueueName,
+      prefetchCount: rmqOptions.prefetchCount,
+    },
+  });
 
-  // await app.startAllMicroservicesAsync();
+  await app.startAllMicroservicesAsync();
 
   await app.listen(config.get('app.port'));
 }
