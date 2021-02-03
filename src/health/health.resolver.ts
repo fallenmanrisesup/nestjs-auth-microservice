@@ -4,9 +4,7 @@ import { HealthService } from './health.service';
 
 @Resolver()
 export class HealthResolver {
-  constructor(
-    private readonly healthService: HealthService,
-  ) {}
+  constructor(private readonly healthService: HealthService) {}
 
   // replace <x> with service name
   @Query(() => Boolean)

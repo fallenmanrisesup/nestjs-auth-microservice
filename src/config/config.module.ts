@@ -1,13 +1,12 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService, ConfigModule as NestConfig } from '@nestjs/config';
-import app from './app';
-import rmq from './rmq';
+import subconfigs from './subconfigs';
 
 @Global()
 @Module({
   imports: [
     NestConfig.forRoot({
-      load: [app, rmq],
+      load: subconfigs,
     }),
   ],
   providers: [ConfigService],
