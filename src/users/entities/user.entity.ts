@@ -47,5 +47,5 @@ export class UserEntity {
     () => SessionEntity,
     s => s.user,
   )
-  sessions: SessionEntity[] = [];
+  sessions: SessionEntity[];
 }
