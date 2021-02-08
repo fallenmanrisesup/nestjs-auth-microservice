@@ -4,13 +4,15 @@ import { AuthMiddleware } from './auth.middleware';
 import { AuthService } from './auth.service';
 import { SessionEntity } from './entities/session.entity';
 import { AuthController } from './auth.controller';
+import { RestAuthGuard } from './guards/rest-auth.guard';
+import { GraphQLAuthGuard } from './guards/graphql-auth.guard';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '../jwt/jwt.module';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([SessionEntity])],
   controllers: [AuthController],
-  providers: [AuthMiddleware, AuthService],
-  exports: [AuthMiddleware, AuthService],
+  providers: [AuthMiddleware, AuthService, RestAuthGuard, GraphQLAuthGuard],
+  exports: [AuthMiddleware, AuthService, RestAuthGuard, GraphQLAuthGuard],
 })
 export class AuthModule {}

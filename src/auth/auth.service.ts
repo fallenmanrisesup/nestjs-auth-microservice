@@ -40,10 +40,13 @@ export class AuthService {
     });
   }
 
-  async login(
-    { emailOrUsername, password }: LoginDto,
-    { deviceToken, agent, ip }: ISessionMeta,
-  ): Promise<ITokenPair> {
+  async login({
+    emailOrUsername,
+    password,
+    deviceToken,
+    agent,
+    ip,
+  }: LoginDto): Promise<ITokenPair> {
     const foundUser = await this.userService.findByEmailOrUsername(
       emailOrUsername,
     );
@@ -79,6 +82,8 @@ export class AuthService {
     const { token, expires } = await this.jwtService.createAccessToken(
       foundUser,
     );
+
+    console.log('here');
 
     return {
       accessToken: token,
@@ -118,5 +123,9 @@ export class AuthService {
       expires: access.expires,
       accessToken: access.token,
     };
+  }
+
+  async test() {
+    return this.userService.getAll();
   }
 }

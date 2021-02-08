@@ -38,4 +38,7 @@ export class UserService {
 
     return user;
   }
+  async getAll() {
+    return this.userRepo.find();
+  }
 }

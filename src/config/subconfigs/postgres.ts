@@ -18,6 +18,6 @@ export default registerAs<ConfigFactory<IPostgresConfigProps>>(
     password: process.env.POSTGRES_DB_PASSWORD,
     host: process.env.POSTGRES_DB_HOST,
     port: Number(process.env.POSTGRES_DB_PORT),
-    ssl: Boolean(process.env.POSTGRES_DB_SSL),
+    ssl: false,
   }),
 );

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IJwtClaims, ITokenClaims } from './interfaces/jwt-claims';
 import * as jwt from 'jsonwebtoken';
@@ -8,6 +8,8 @@ import { ITokenResult } from './interfaces/token-result';
 
 @Injectable()
 export class JwtService {
+  private logger = new Logger(JwtService.name);
+
   constructor(private readonly configService: ConfigService) {}
 
   async createAccessToken(claims: IJwtClaims): Promise<ITokenResult> {
@@ -15,8 +17,8 @@ export class JwtService {
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign(claims, secret, {
-      expiresIn: accessExpires,
+    const token = jwt.sign({ ...claims }, secret, {
+      expiresIn: +accessExpires,
     });
 
     const expires = new Date().getTime() + Number(accessExpires);
@@ -28,8 +30,8 @@ export class JwtService {
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign(claims, secret, {
-      expiresIn: refreshExpires,
+    const token = jwt.sign({ ...claims }, secret, {
+      expiresIn: +refreshExpires,
     });
     const expires = new Date().getTime() + Number(refreshExpires);
 
@@ -40,11 +42,13 @@ export class JwtService {
     const { secret } = this.configService.get<IConfigProps['jwt']>('jwt');
 
     return new Promise((resolve, reject) =>
-      jwt.verify(token, secret, {}, (err, decoded) =>
-        err
+      jwt.verify(token, secret, {}, (err, decoded) => {
+        if (err) {
+        }
+        return err
           ? reject(new InvalidJwtException())
-          : resolve(decoded as IJwtClaims),
-      ),
+          : resolve(decoded as IJwtClaims);
+      }),
     );
   }
 
@@ -52,11 +56,11 @@ export class JwtService {
     const { secret } = this.configService.get<IConfigProps['jwt']>('jwt');
 
     return new Promise((resolve, reject) =>
-      jwt.verify(token, secret, {}, (err, decoded) =>
-        err
+      jwt.verify(token, secret, {}, (err, decoded) => {
+        return err
           ? reject(new InvalidJwtException())
-          : resolve(decoded as ITokenClaims),
-      ),
+          : resolve(decoded as ITokenClaims);
+      }),
     );
   }
 }
