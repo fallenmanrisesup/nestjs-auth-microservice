@@ -5,17 +5,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SessionEntity } from './entities/session.entity';
 import { RegisterDto } from './dtos/register.dto';
-import * as bcrypt from 'bcrypt';
 import { EmailExistsException } from './excepctions/email-exists.exception';
 import { ITokenPair } from './intrafeces/token-pair';
 import { LoginDto } from './dtos/login.dto';
-import { ISessionMeta } from './intrafeces/login-meta';
+import { ISessionMeta } from './intrafeces/session-meta';
 import { IncorrectCredentials } from './excepctions/incorrect-credentials.exception';
 import { BadRefreshTokenException } from './excepctions/bad-refresh-token.exception';
+import { EncryptionService } from 'src/encryption/encryption.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     @InjectRepository(SessionEntity)
@@ -31,7 +32,7 @@ export class AuthService {
       throw new EmailExistsException();
     }
 
-    const pwd = await bcrypt.hash(password, 10);
+    const pwd = await this.encryptionService.hash(password);
 
     return this.userService.create({
       email,
@@ -51,7 +52,10 @@ export class AuthService {
       emailOrUsername,
     );
 
-    if (!foundUser || !(await bcrypt.compare(password, foundUser.password))) {
+    if (
+      !foundUser ||
+      !(await this.encryptionService.compare(password, foundUser.password))
+    ) {
       throw new IncorrectCredentials();
     }
 
@@ -123,9 +127,5 @@ export class AuthService {
       expires: access.expires,
       accessToken: access.token,
     };
-  }
-
-  async test() {
-    return this.userService.getAll();
   }
 }

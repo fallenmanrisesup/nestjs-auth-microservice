@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { RmqOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { IConfigProps } from './config';
+import { ValidationExceptionFilter } from './core/filters/validation-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,8 @@ async function bootstrap() {
       prefetchCount: rmqOptions.prefetchCount,
     },
   });
+
+  app.useGlobalFilters(new ValidationExceptionFilter());
 
   await app.startAllMicroservicesAsync();
 

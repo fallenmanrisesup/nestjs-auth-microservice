@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from './jwt/jwt.module';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { EncryptionModule } from './encryption/encryption.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuthMiddleware } from './auth/auth.middleware';
     UsersModule,
     AuthModule,
     JwtModule,
+    EncryptionModule,
   ],
   controllers: [AppController],
   providers: [],

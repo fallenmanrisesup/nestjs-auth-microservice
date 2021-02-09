@@ -1,5 +1,5 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
-import { SessionEntity } from '../../auth/entities/session.entity';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { SessionEntity } from '../../auth/entities/session.entity';
 
 @Entity('users')
 @Directive('@key(fields: "id")')
@@ -28,6 +29,7 @@ export class UserEntity {
   @Index({ unique: true })
   username: string;
 
+  @Exclude({ toPlainOnly: true })
   @Column()
   password: string;
 

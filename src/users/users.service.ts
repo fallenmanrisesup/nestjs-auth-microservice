@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
-import { CreateUserDto } from './dtos/create-user.dto';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { CreateUserInput } from './dtos/create-user.dto';
+import { ListUsersArgs, ListUsersResult } from './dtos/users-pagination';
 import { UserEntity } from './entities/user.entity';
 import { UserNotFoundException } from './exceptions/not-found.exception';
 
@@ -16,7 +17,7 @@ export class UserService {
     return this.userRepo.findOne(opts);
   }
 
-  async create(data: CreateUserDto) {
+  async create(data: CreateUserInput) {
     const created = this.userRepo.create(data);
     return this.userRepo.save(created);
   }
@@ -38,7 +39,28 @@ export class UserService {
 
     return user;
   }
-  async getAll() {
-    return this.userRepo.find();
+
+  async list({
+    page,
+    perPage,
+    orderBy,
+  }: ListUsersArgs): Promise<ListUsersResult> {
+    const options: FindManyOptions<UserEntity> = {};
+
+    if (orderBy) {
+      options.order = {
+        [orderBy.field]: orderBy.order,
+      };
+    }
+
+    const items = await this.userRepo.find({
+      ...options,
+      skip: page * perPage,
+      take: perPage,
+    });
+
+    const total = await this.userRepo.count({ ...options });
+
+    return { items, total, hasMore: page * perPage + perPage < total };
   }
 }

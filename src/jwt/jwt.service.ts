@@ -12,12 +12,17 @@ export class JwtService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async createAccessToken(claims: IJwtClaims): Promise<ITokenResult> {
+  async createAccessToken({
+    id,
+    username,
+    lang,
+    email,
+  }: IJwtClaims): Promise<ITokenResult> {
     const { secret, accessExpires } = this.configService.get<
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign({ ...claims }, secret, {
+    const token = jwt.sign({ id, username, lang, email }, secret, {
       expiresIn: +accessExpires,
     });
 
@@ -25,12 +30,12 @@ export class JwtService {
 
     return { token, expires: new Date(expires) };
   }
-  async createRefreshToken(claims: ITokenClaims): Promise<ITokenResult> {
+  async createRefreshToken({ id }: ITokenClaims): Promise<ITokenResult> {
     const { secret, refreshExpires } = this.configService.get<
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign({ ...claims }, secret, {
+    const token = jwt.sign({ id }, secret, {
       expiresIn: +refreshExpires,
     });
     const expires = new Date().getTime() + Number(refreshExpires);
@@ -43,8 +48,7 @@ export class JwtService {
 
     return new Promise((resolve, reject) =>
       jwt.verify(token, secret, {}, (err, decoded) => {
-        if (err) {
-        }
+        if (err) this.logger.warn(err);
         return err
           ? reject(new InvalidJwtException())
           : resolve(decoded as IJwtClaims);
@@ -57,6 +61,7 @@ export class JwtService {
 
     return new Promise((resolve, reject) =>
       jwt.verify(token, secret, {}, (err, decoded) => {
+        if (err) this.logger.warn(err);
         return err
           ? reject(new InvalidJwtException())
           : resolve(decoded as ITokenClaims);
