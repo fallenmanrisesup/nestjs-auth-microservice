@@ -8,9 +8,15 @@ import { RestAuthGuard } from './guards/rest-auth.guard';
 import { GraphQLAuthGuard } from './guards/graphql-auth.guard';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '../jwt/jwt.module';
+import { AuthConfirmationsModule } from '../auth-confirmations/auth-confirmations.module';
 
 @Module({
-  imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([SessionEntity])],
+  imports: [
+    AuthConfirmationsModule,
+    JwtModule,
+    UsersModule,
+    TypeOrmModule.forFeature([SessionEntity]),
+  ],
   controllers: [AuthController],
   providers: [AuthMiddleware, AuthService, RestAuthGuard, GraphQLAuthGuard],
   exports: [AuthMiddleware, AuthService, RestAuthGuard, GraphQLAuthGuard],

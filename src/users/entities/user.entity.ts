@@ -37,6 +37,18 @@ export class UserEntity {
   @Column({ default: 'en' })
   lang: string;
 
+  @Column({ nullable: true })
+  @Field({ defaultValue: false })
+  isVerified: boolean;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  resetPasswordCode: string;
+
+  @Column({ nullable: true })
+  @Field()
+  emailVerificationCode?: string;
+
   @Field(() => Date)
   @CreateDateColumn()
   created: Date;

@@ -9,9 +9,16 @@ import { EmailExistsException } from './excepctions/email-exists.exception';
 import { ITokenPair } from './intrafeces/token-pair';
 import { LoginDto } from './dtos/login.dto';
 import { ISessionMeta } from './intrafeces/session-meta';
-import { IncorrectCredentials } from './excepctions/incorrect-credentials.exception';
+import { IncorrectCredentialsException } from './excepctions/incorrect-credentials.exception';
 import { BadRefreshTokenException } from './excepctions/bad-refresh-token.exception';
-import { EncryptionService } from 'src/encryption/encryption.service';
+import { EncryptionService } from '../encryption/encryption.service';
+import { LogoutDto } from './dtos/logout.dto';
+import { IJwtClaims } from '../jwt/interfaces/jwt-claims';
+import { AuthConfirmationsService } from '../auth-confirmations/auth-confirmations.service';
+import { UserEntity } from '../users/entities/user.entity';
+import { RecoverPasswordDto } from './dtos/recover-password.dto';
+import { RecoverPasswordConfirmDto } from './dtos/recover-password-confirm.dto';
+import { IncorrectRecoveryCodeException } from './excepctions/incorrect-code.exception';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +28,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(SessionEntity)
     private readonly sessionsRepo: Repository<SessionEntity>,
+    private readonly authConfirmationService: AuthConfirmationsService,
   ) {}
 
   async register({ email, username, password }: RegisterDto) {
@@ -34,11 +42,18 @@ export class AuthService {
 
     const pwd = await this.encryptionService.hash(password);
 
-    return this.userService.create({
+    const user = await this.userService.create({
       email,
       username,
       password: pwd,
     });
+
+    await this.authConfirmationService.sendEmailConfirmation(
+      user,
+      this.authConfirmationService.createCode(),
+    );
+
+    return user;
   }
 
   async login({
@@ -56,7 +71,7 @@ export class AuthService {
       !foundUser ||
       !(await this.encryptionService.compare(password, foundUser.password))
     ) {
-      throw new IncorrectCredentials();
+      throw new IncorrectCredentialsException();
     }
 
     const { refreshToken } = await this.sessionsRepo.manager.transaction(
@@ -127,5 +142,34 @@ export class AuthService {
       expires: access.expires,
       accessToken: access.token,
     };
+  }
+
+  async logout({ userId, deviceToken }: LogoutDto) {
+    await this.sessionsRepo.delete({ user: { id: userId }, deviceToken });
+  }
+
+  getUserFromClaims({ id }: IJwtClaims) {
+    return this.userService.find({ where: { id } });
+  }
+
+  async recoverPassword(body: RecoverPasswordDto) {
+    await this.authConfirmationService.createPasswordRecovery(body);
+  }
+
+  async recoverPasswordConfirm(body: RecoverPasswordConfirmDto) {
+    const password = await this.encryptionService.hash(body.password);
+
+    const userFound = await this.userService.find({
+      where: { resetPasswordCode: body.code },
+    });
+
+    if (!userFound) {
+      throw new IncorrectRecoveryCodeException();
+    }
+
+    await this.userService.updateUser(
+      { id: userFound.id },
+      { password, resetPasswordCode: null },
+    );
   }
 }

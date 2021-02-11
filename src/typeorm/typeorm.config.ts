@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { EntitySchema } from 'typeorm';
 import { IConfigProps } from '../config';
 import { UserEntity } from '../users/entities/user.entity';
 import { SessionEntity } from '../auth/entities/session.entity';
@@ -15,8 +14,6 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       IConfigProps['postgres']
     >('postgres');
 
-    const entities: (Function | string | EntitySchema<any>)[] = [UserEntity];
-
     const opts: TypeOrmModuleOptions = {
       ssl,
       database,
@@ -24,6 +21,7 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       password,
       port,
       host,
+      synchronize: true,
       type: 'postgres',
       entities: [SessionEntity, UserEntity],
     };

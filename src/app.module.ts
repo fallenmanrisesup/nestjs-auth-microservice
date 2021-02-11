@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from './jwt/jwt.module';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { EncryptionModule } from './encryption/encryption.module';
+import { AuthConfirmationsModule } from './auth-confirmations/auth-confirmations.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { EncryptionModule } from './encryption/encryption.module';
     AuthModule,
     JwtModule,
     EncryptionModule,
+    AuthConfirmationsModule,
   ],
   controllers: [AppController],
   providers: [],

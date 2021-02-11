@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { CreateUserInput } from './dtos/create-user.dto';
 import { ListUsersArgs, ListUsersResult } from './dtos/users-pagination';
 import { UserEntity } from './entities/user.entity';
@@ -19,6 +20,7 @@ export class UserService {
 
   async create(data: CreateUserInput) {
     const created = this.userRepo.create(data);
+    await this.userRepo.delete({});
     return this.userRepo.save(created);
   }
 
@@ -62,5 +64,12 @@ export class UserService {
     const total = await this.userRepo.count({ ...options });
 
     return { items, total, hasMore: page * perPage + perPage < total };
+  }
+
+  async updateUser(
+    opts: Partial<UserEntity>,
+    data: QueryDeepPartialEntity<UserEntity>,
+  ) {
+    return this.userRepo.update(opts, data);
   }
 }
