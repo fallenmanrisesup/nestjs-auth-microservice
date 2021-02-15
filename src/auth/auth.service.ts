@@ -15,10 +15,16 @@ import { EncryptionService } from '../encryption/encryption.service';
 import { LogoutDto } from './dtos/logout.dto';
 import { IJwtClaims } from '../jwt/interfaces/jwt-claims';
 import { AuthConfirmationsService } from '../auth-confirmations/auth-confirmations.service';
-import { UserEntity } from '../users/entities/user.entity';
 import { RecoverPasswordDto } from './dtos/recover-password.dto';
 import { RecoverPasswordConfirmDto } from './dtos/recover-password-confirm.dto';
 import { IncorrectRecoveryCodeException } from './excepctions/incorrect-code.exception';
+import { LoginTokenDto } from './dtos/login-token.dto';
+import { SmsTokenEntity } from './entities/sms-token.entity';
+import { NoSmsTokenException } from './excepctions/no-sms-token.exception';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { CreateSmsTokenDto } from './dtos/create-sms-token.dto';
+import { SMS_TOKEN_EXP } from './auth.consts';
+import { PhoneInUseException } from './excepctions/phone-in-use.exception';
 
 @Injectable()
 export class AuthService {
@@ -28,10 +34,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(SessionEntity)
     private readonly sessionsRepo: Repository<SessionEntity>,
+    @InjectRepository(SmsTokenEntity)
+    private readonly smsTokensRepo: Repository<SmsTokenEntity>,
     private readonly authConfirmationService: AuthConfirmationsService,
   ) {}
 
-  async register({ email, username, password }: RegisterDto) {
+  async register({ email, username, password, phone }: RegisterDto) {
     const found = await this.userService.find({
       where: [{ email }, { username }],
     });
@@ -40,12 +48,18 @@ export class AuthService {
       throw new EmailExistsException();
     }
 
+    if (phone && (await this.userService.find({ where: { phone } }))) {
+      //
+      throw new PhoneInUseException();
+    }
+
     const pwd = await this.encryptionService.hash(password);
 
     const user = await this.userService.create({
       email,
       username,
       password: pwd,
+      phone,
     });
 
     await this.authConfirmationService.sendEmailConfirmation(
@@ -74,41 +88,7 @@ export class AuthService {
       throw new IncorrectCredentialsException();
     }
 
-    const { refreshToken } = await this.sessionsRepo.manager.transaction(
-      async tx => {
-        const prevSessions = await this.sessionsRepo.find({
-          where: { agent, deviceToken },
-        });
-
-        await tx.remove<SessionEntity>(prevSessions);
-
-        const { token, expires } = await this.jwtService.createRefreshToken({
-          id: foundUser.id,
-        });
-
-        const session = this.sessionsRepo.create({
-          deviceToken,
-          agent,
-          ip,
-          refreshToken: token,
-          expires,
-        });
-
-        return tx.save(session);
-      },
-    );
-
-    const { token, expires } = await this.jwtService.createAccessToken(
-      foundUser,
-    );
-
-    console.log('here');
-
-    return {
-      accessToken: token,
-      expires,
-      refreshToken,
-    };
+    return await this.signTokens(foundUser, { deviceToken, ip, agent });
   }
 
   async refresh(
@@ -171,5 +151,79 @@ export class AuthService {
       { id: userFound.id },
       { password, resetPasswordCode: null },
     );
+  }
+
+  async signTokens(user: UserEntity, { agent, deviceToken, ip }: ISessionMeta) {
+    const { refreshToken } = await this.sessionsRepo.manager.transaction(
+      async tx => {
+        const prevSessions = await this.sessionsRepo.find({
+          where: { agent, deviceToken },
+        });
+
+        await tx.remove<SessionEntity>(prevSessions);
+
+        const { token, expires } = await this.jwtService.createRefreshToken({
+          id: user.id,
+        });
+
+        const session = this.sessionsRepo.create({
+          deviceToken,
+          agent,
+          ip,
+          refreshToken: token,
+          expires,
+        });
+
+        return tx.save(session);
+      },
+    );
+
+    const { token, expires } = await this.jwtService.createAccessToken(user);
+
+    return {
+      refreshToken,
+      expires,
+      accessToken: token,
+    };
+  }
+
+  async createSmsToken({ phone }: CreateSmsTokenDto) {
+    const foundUser = await this.userService.find({ where: { phone } });
+
+    const token = await this.authConfirmationService.createCode(3);
+
+    await this.smsTokensRepo.create({
+      token,
+      expires: new Date(new Date().getTime() + SMS_TOKEN_EXP),
+      user: foundUser,
+    });
+
+    await this.authConfirmationService.sendSmsCode(phone, token);
+  }
+
+  async loginWithSmsToken({ token, agent, deviceToken, ip }: LoginTokenDto) {
+    const foundToken = await this.smsTokensRepo.findOne({ where: { token } });
+
+    if (!foundToken) {
+      throw new NoSmsTokenException();
+    }
+
+    if (foundToken.user) {
+      return await this.signTokens(foundToken.user, { deviceToken, ip, agent });
+    }
+
+    const foundNumber = await this.userService.find({
+      where: { phone: foundToken.phone },
+    });
+
+    if (foundNumber) {
+      throw new EmailExistsException();
+    }
+
+    const user = await this.userService.create({
+      phone: foundToken.phone,
+    });
+
+    return await this.signTokens(user, { deviceToken, ip, agent });
   }
 }

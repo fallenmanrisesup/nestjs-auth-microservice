@@ -57,8 +57,22 @@ export class AuthConfirmationsService {
     );
   }
 
-  createCode(bytesLen: number = 6) {
+  createCode(bytesLen = 6) {
     return randomBytes(bytesLen).toString('hex');
+  }
+
+  async sendSmsCode(phone: string, token: string) {
+    const payload: NotificationPayload = {
+      params: { token, phone },
+      type: NotificationsType.SMS_AUTH,
+      transports: [NotificationTransport.SMS],
+      lang: 'en',
+    };
+
+    await this.notificationService.emit(
+      NotificationServiceEvents.CREATE_USER_NOTIFICATION,
+      JSON.stringify(payload),
+    );
   }
 
   async sendEmailConfirmation({ id, lang }: UserEntity, code: string) {

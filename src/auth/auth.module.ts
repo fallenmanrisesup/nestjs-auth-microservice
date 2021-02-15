@@ -9,13 +9,14 @@ import { GraphQLAuthGuard } from './guards/graphql-auth.guard';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '../jwt/jwt.module';
 import { AuthConfirmationsModule } from '../auth-confirmations/auth-confirmations.module';
+import { SmsTokenEntity } from './entities/sms-token.entity';
 
 @Module({
   imports: [
     AuthConfirmationsModule,
     JwtModule,
     UsersModule,
-    TypeOrmModule.forFeature([SessionEntity]),
+    TypeOrmModule.forFeature([SessionEntity, SmsTokenEntity]),
   ],
   controllers: [AuthController],
   providers: [AuthMiddleware, AuthService, RestAuthGuard, GraphQLAuthGuard],

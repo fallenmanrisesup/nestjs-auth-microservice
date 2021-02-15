@@ -19,18 +19,22 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
-  @Column()
-  @Index({ unique: true })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  @Index()
   email: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   @Index({ unique: true })
   username: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  phone?: string;
+
   @Exclude({ toPlainOnly: true })
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Field()

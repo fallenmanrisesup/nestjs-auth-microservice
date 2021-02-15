@@ -4,6 +4,7 @@ import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { IConfigProps } from '../config';
 import { UserEntity } from '../users/entities/user.entity';
 import { SessionEntity } from '../auth/entities/session.entity';
+import { SmsTokenEntity } from '../auth/entities/sms-token.entity';
 
 @Injectable()
 export class TypeormConfig implements TypeOrmOptionsFactory {
@@ -23,7 +24,7 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       host,
       synchronize: true,
       type: 'postgres',
-      entities: [SessionEntity, UserEntity],
+      entities: [SessionEntity, UserEntity, SmsTokenEntity],
     };
 
     return opts;

@@ -1,14 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ISessionMeta } from '../intrafeces/session-meta';
 
-export class LoginDto implements ISessionMeta {
-  @IsString()
+export class LoginTokenDto implements ISessionMeta {
   @IsNotEmpty()
-  emailOrUsername: string;
-
   @IsString()
-  @IsNotEmpty()
-  password: string;
+  token: string;
 
   ip?: string;
 

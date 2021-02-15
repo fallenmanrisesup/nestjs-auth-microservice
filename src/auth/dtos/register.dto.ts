@@ -1,10 +1,13 @@
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsPhoneNumber, Length } from 'class-validator';
 import { ISessionMeta } from '../intrafeces/session-meta';
 
 export class RegisterDto implements ISessionMeta {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @IsPhoneNumber()
+  phone: string;
 
   @IsNotEmpty()
   @Length(3, 16)

@@ -17,12 +17,13 @@ export class JwtService {
     username,
     lang,
     email,
+    phone,
   }: IJwtClaims): Promise<ITokenResult> {
     const { secret, accessExpires } = this.configService.get<
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign({ id, username, lang, email }, secret, {
+    const token = jwt.sign({ id, username, lang, email, phone }, secret, {
       expiresIn: +accessExpires,
     });
 

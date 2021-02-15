@@ -24,6 +24,7 @@ import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ValidationPipe } from '../core/pipes/validation.pipe';
 import { ISessionMeta } from './intrafeces/session-meta';
 import { RecoverPasswordDto } from './dtos/recover-password.dto';
+import { RecoverPasswordConfirmDto } from './dtos/recover-password-confirm.dto';
 
 @Controller('/auth')
 export class AuthController {
@@ -70,5 +71,7 @@ export class AuthController {
   }
 
   @Post('/password-recovery/confirm')
-  async passwordRecoveryConfirm() {}
+  async passwordRecoveryConfirm(@Body() body: RecoverPasswordConfirmDto) {
+    return this.authService.recoverPasswordConfirm(body);
+  }
 }

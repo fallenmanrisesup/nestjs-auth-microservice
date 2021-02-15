@@ -8,14 +8,11 @@ export enum NotificationsType {
   SUCCESSFULL_REGISTRATION = 'SUCCESSFULL_REGISTRATION',
   EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION',
   PASSWORD_RECOVERY = 'PASSWORD_RECOVERY',
+  SMS_AUTH = 'SMS_AUTH',
 }
 
-export const notificationsTemplateMapping = {
-  [NotificationsType.SUCCESSFULL_REGISTRATION]: 'registration_success',
-};
-
 export interface NotificationPayload {
-  userId: string;
+  userId?: string;
   lang: string;
   params: { [key: string]: any };
   type: NotificationsType;

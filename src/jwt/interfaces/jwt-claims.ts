@@ -3,7 +3,8 @@ export interface ITokenClaims {
 }
 
 export interface IJwtClaims extends ITokenClaims {
-  email: string;
-  username: string;
+  email?: string;
+  phone?: string;
+  username?: string;
   lang: string;
 }
