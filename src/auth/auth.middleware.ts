@@ -3,11 +3,19 @@ import { NextFunction, Response } from 'express';
 import { JwtService } from '../jwt/jwt.service';
 import { IRequest } from '../core/extensions';
 
+export const X_USER_HEADER = 'x-user';
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly jwtService: JwtService) {}
 
-  async use(req: IRequest, res: Response, next: NextFunction) {
+  async use(req: IRequest, _: Response, next: NextFunction) {
+    if (req.headers[X_USER_HEADER]) {
+      const json = Buffer.from(req.headers[X_USER_HEADER]).toString('utf-8');
+      req.user = JSON.parse(json);
+      return next();
+    }
+
     const { authorization } = req.headers;
 
     if (authorization) {
