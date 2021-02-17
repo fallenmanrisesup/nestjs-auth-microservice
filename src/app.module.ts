@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { HealthModule } from './health/health.module';
 import { ConfigModule } from './config/config.module';
 import { PromModule } from '@digikare/nestjs-prom';
-import { GraphQLFederationModule, GraphQLModule } from '@nestjs/graphql';
+import { GraphQLFederationModule } from '@nestjs/graphql';
 import { name, version } from '../package.json';
 import { GraphqlModule } from './graphql/graphql.module';
 import { GqlConfigService } from './graphql/graphql-config.service';
