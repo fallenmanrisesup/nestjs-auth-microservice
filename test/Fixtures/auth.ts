@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 import { UserEntity } from '../../src/users/entities/user.entity';
 import { SessionEntity } from '../../src/auth/entities/session.entity';
 import { EncryptionService } from '../../src/encryption/encryption.service';
+import * as request from 'supertest';
 
 export const existingUserPassword = 'testpassword123';
 
@@ -30,4 +31,17 @@ export const loadAuthFixtures = async (conn: Connection) => {
 
   existingUser.password = await encryption.hash(existingUserPassword);
   await conn.getRepository(UserEntity).save(existingUser);
+};
+
+export const loginExistingUser = async (
+  req: request.SuperTest<request.Test>,
+) => {
+  const loginBody = {
+    emailOrUsername: existingUser.email,
+    password: existingUserPassword,
+    ...existingUserSessionMeta,
+  };
+
+  const resp = await req.post('/auth/login').send(loginBody);
+  return resp;
 };

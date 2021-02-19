@@ -10,6 +10,7 @@ import {
   existingUserPassword,
   existingUserSessionMeta,
   loadAuthFixtures,
+  loginExistingUser,
 } from './Fixtures/auth';
 import { RegisterDto } from '../src/auth/dtos/register.dto';
 import { EmailExistsException } from '../src/auth/excepctions/email-exists.exception';
@@ -112,5 +113,63 @@ describe('AuthController (e2e)', () => {
 
     expect(resp.status).toBe(400);
     expect(resp.body.message).toBe(new IncorrectCredentialsException().message);
+  });
+
+  it('/auth/login (POST) 400', async () => {
+    const loginBody: LoginDto = {
+      emailOrUsername: existingUser.email,
+      password: '21u3iuhjskoalh',
+      ip: '111.111.111.111',
+      agent: 'IPhone X',
+      deviceToken: 'unique-token-111',
+    };
+
+    const resp = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginBody);
+
+    expect(resp.status).toBe(400);
+    expect(resp.body.message).toBe(new IncorrectCredentialsException().message);
+  });
+
+  it('/auth/me (GET) 200', async () => {
+    const authResp = await loginExistingUser(request(app.getHttpServer()));
+
+    expect(authResp.status).toBe(201);
+
+    const { accessToken } = authResp.body;
+
+    const resp = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set({ Authorization: `Bearer ${accessToken}` });
+
+    expect(resp.status).toBe(200);
+    expect(resp.body.username).toBe(existingUser.username);
+  });
+
+  it('/auth/me (GET) 403', async () => {
+    const resp = await request(app.getHttpServer()).get('/auth/me');
+
+    expect(resp.status).toBe(403);
+  });
+
+  it('/auth/logout (DELETE) 204', async () => {
+    const authResp = await loginExistingUser(request(app.getHttpServer()));
+
+    expect(authResp.status).toBe(201);
+
+    const { accessToken } = authResp.body;
+
+    const resp = await request(app.getHttpServer())
+      .delete('/auth/logout')
+      .set({ Authorization: `Bearer ${accessToken}` });
+
+    expect(resp.status).toBe(204);
+  });
+
+  it('/auth/logout (DELETE) 204', async () => {
+    const resp = await request(app.getHttpServer()).delete('/auth/logout');
+
+    expect(resp.status).toBe(403);
   });
 });
