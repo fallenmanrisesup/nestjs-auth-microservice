@@ -172,4 +172,19 @@ describe('AuthController (e2e)', () => {
 
     expect(resp.status).toBe(403);
   });
+
+  it('/auth/refresh (PATCH) 200', async () => {
+    const authResp = await loginExistingUser(request(app.getHttpServer()));
+
+    expect(authResp.status).toBe(201);
+
+    const { refreshToken } = authResp.body;
+
+    const resp = await request(app.getHttpServer())
+      .patch('/auth/refresh')
+      .send({ refreshToken, ...existingUserSessionMeta });
+
+    expect(resp.status).toBe(200);
+  });
+  it('/auth/refresh (PATCH) 400', async () => {});
 });

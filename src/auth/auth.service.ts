@@ -96,7 +96,10 @@ export class AuthService {
     { ip }: ISessionMeta,
   ): Promise<ITokenPair> {
     const now = new Date();
-    const sess = await this.sessionsRepo.findOne({ refreshToken });
+    const sess = await this.sessionsRepo.findOne({
+      where: { refreshToken },
+      relations: ['user'],
+    });
 
     if (!sess || sess.expires < now) {
       throw new BadRefreshTokenException();
@@ -172,6 +175,7 @@ export class AuthService {
           ip,
           refreshToken: token,
           expires,
+          user,
         });
 
         return tx.save(session);
