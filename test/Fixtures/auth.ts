@@ -19,12 +19,13 @@ export const existingUser: UserEntity = {
   created: new Date(),
   updated: new Date(),
   resetPasswordCode: v4(),
+  emailVerificationCode: v4(),
 };
 
 export const existingUserSessionMeta = {
-  ip: '111.111.111.123',
-  agent: 'IPhone XS',
-  deviceToken: 'unique-token-123',
+  ip: faker.internet.ip(),
+  agent: faker.internet.userAgent(),
+  deviceToken: v4(),
 };
 
 export const loadAuthFixtures = async (conn: Connection) => {

@@ -11,7 +11,7 @@ import {
   existingUserSessionMeta,
   loadAuthFixtures,
   loginExistingUser,
-} from './Fixtures/auth';
+} from './Fixtures';
 import { RegisterDto } from '../src/auth/dtos/register.dto';
 import { EmailExistsException } from '../src/auth/excepctions/email-exists.exception';
 import { LoginDto } from '../src/auth/dtos/login.dto';
