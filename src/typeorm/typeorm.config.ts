@@ -11,9 +11,21 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
   constructor(private readonly config: ConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    const { envMode } = this.config.get<IConfigProps['app']>('app');
+
     const { database, username, password, port, host, ssl } = this.config.get<
       IConfigProps['postgres']
     >('postgres');
+
+    const entities = [SessionEntity, UserEntity, SmsTokenEntity];
+
+    envMode === 'test' ? 'sqlite' : 'postgres';
+
+    const testOpts: TypeOrmModuleOptions = {
+      database: '.DS_Store',
+      type: 'sqlite',
+      entities,
+    };
 
     const opts: TypeOrmModuleOptions = {
       ssl,
@@ -24,9 +36,9 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       host,
       synchronize: true,
       type: 'postgres',
-      entities: [SessionEntity, UserEntity, SmsTokenEntity],
+      entities,
     };
 
-    return opts;
+    return envMode === 'test' ? testOpts : opts;
   }
 }

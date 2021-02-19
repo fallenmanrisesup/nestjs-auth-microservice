@@ -11,7 +11,7 @@ yarn-error.log*
 lerna-debug.log*
 
 # OS
-.DS_Store
+.DS_Store*
 
 .env*
 !.env.example

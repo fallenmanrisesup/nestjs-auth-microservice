@@ -15,10 +15,14 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  it('/ (GET)', async () => {
+    const resp = await request(app.getHttpServer()).get('/');
+
+    expect(resp.status).toBe(200);
+    const { name, pid, mode, version } = resp.body;
+    expect(name).not.toBeNull();
+    expect(pid).not.toBeNull();
+    expect(mode).not.toBeNull();
+    expect(version).not.toBeNull();
   });
 });
