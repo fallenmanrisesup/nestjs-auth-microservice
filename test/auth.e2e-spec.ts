@@ -18,6 +18,8 @@ import { LoginDto } from '../src/auth/dtos/login.dto';
 import { TestLogger } from './test-logger';
 import { IncorrectCredentialsException } from '../src/auth/excepctions/incorrect-credentials.exception';
 import { BadRefreshTokenException } from '../src/auth/excepctions/bad-refresh-token.exception';
+import { v4 } from 'uuid';
+import { IncorrectRecoveryCodeException } from '../src/auth/excepctions/incorrect-code.exception';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -187,6 +189,7 @@ describe('AuthController (e2e)', () => {
 
     expect(resp.status).toBe(200);
   });
+
   it('/auth/refresh (PATCH) 400', async () => {
     const authResp = await loginExistingUser(request(app.getHttpServer()));
 
@@ -211,5 +214,90 @@ describe('AuthController (e2e)', () => {
       .send({ refreshToken: 'ivalidrefresh', ...existingUserSessionMeta });
     expect(resp.status).toBe(400);
     expect(resp.body.message).toBe(new BadRefreshTokenException().message);
+  });
+
+  it('/auth/password-reset POST(201)', async () => {
+    const authResp = await loginExistingUser(request(app.getHttpServer()));
+
+    expect(authResp.status).toBe(201);
+
+    const { accessToken } = authResp.body;
+
+    const resetPassword = v4();
+
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-reset')
+      .set({ Authorization: `Bearer ${accessToken}` })
+      .send({ password: resetPassword });
+
+    expect(resp.status).toBe(201);
+
+    const newPasswordAuthResp = await loginExistingUser(
+      request(app.getHttpServer()),
+      {
+        password: resetPassword,
+      },
+    );
+
+    expect(newPasswordAuthResp.status).toBe(201);
+  });
+
+  it('/auth/password-reset POST(403)', async () => {
+    const resetPassword = v4();
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-reset')
+      .send({ password: resetPassword });
+
+    expect(resp.status).toBe(403);
+  });
+
+  it('/auth/password-recovery POST(201)', async () => {
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({ email: existingUser.email });
+
+    expect(resp.status).toBe(201);
+  });
+
+  it('/auth/password-recovery POST(201)', async () => {
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({ email: 'not-found-email@mail.com' });
+
+    expect(resp.status).toBe(400);
+    expect(resp.body.message).toBe(new IncorrectCredentialsException().message);
+  });
+
+  it('/auth/password-recovery/confirm POST(201)', async () => {
+    const recoveryPassword = v4();
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-recovery/confirm')
+      .send({
+        code: existingUser.resetPasswordCode,
+        password: recoveryPassword,
+      });
+
+    expect(resp.status).toBe(201);
+
+    const authResp = await loginExistingUser(request(app.getHttpServer()), {
+      password: recoveryPassword,
+    });
+
+    expect(authResp.status).toBe(201);
+  });
+
+  it('/auth/password-recovery/confirm POST(400)', async () => {
+    const recoveryPassword = v4();
+    const resp = await request(app.getHttpServer())
+      .post('/auth/password-recovery/confirm')
+      .send({
+        code: 'not code',
+        password: recoveryPassword,
+      });
+
+    expect(resp.status).toBe(400);
+    expect(resp.body.message).toBe(
+      new IncorrectRecoveryCodeException().message,
+    );
   });
 });

@@ -25,6 +25,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateSmsTokenDto } from './dtos/create-sms-token.dto';
 import { SMS_TOKEN_EXP } from './auth.consts';
 import { PhoneInUseException } from './excepctions/phone-in-use.exception';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -239,5 +240,11 @@ export class AuthService {
     });
 
     return await this.signTokens(user, { deviceToken, ip, agent });
+  }
+
+  async resetPassword(jwtClaims: IJwtClaims, body: ResetPasswordDto) {
+    const password = await this.encryptionService.hash(body.password);
+
+    await this.userService.updateUser({ id: jwtClaims.id }, { password });
   }
 }

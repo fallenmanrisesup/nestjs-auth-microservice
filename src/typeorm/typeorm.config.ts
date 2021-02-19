@@ -25,6 +25,8 @@ export class TypeormConfig implements TypeOrmOptionsFactory {
       database: '.DS_Store',
       type: 'sqlite',
       entities,
+      synchronize: true,
+      dropSchema: true,
     };
 
     const opts: TypeOrmModuleOptions = {

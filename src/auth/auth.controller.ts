@@ -25,6 +25,8 @@ import { ValidationPipe } from '../core/pipes/validation.pipe';
 import { ISessionMeta } from './intrafeces/session-meta';
 import { RecoverPasswordDto } from './dtos/recover-password.dto';
 import { RecoverPasswordConfirmDto } from './dtos/recover-password-confirm.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
+import jwt from 'src/config/subconfigs/jwt';
 
 @Controller('/auth')
 export class AuthController {
@@ -73,5 +75,14 @@ export class AuthController {
   @Post('/password-recovery/confirm')
   async passwordRecoveryConfirm(@Body() body: RecoverPasswordConfirmDto) {
     return this.authService.recoverPasswordConfirm(body);
+  }
+
+  @UseGuards(RestAuthGuard)
+  @Post('/password-reset')
+  async passwordReset(
+    @Claims('http') jwtClaims: IJwtClaims,
+    @Body() body: ResetPasswordDto
+    ) {
+      await this.authService.resetPassword(jwtClaims, body)
   }
 }
