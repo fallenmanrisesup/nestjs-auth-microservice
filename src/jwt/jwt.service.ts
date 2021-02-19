@@ -5,6 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { IConfigProps } from '../config';
 import { InvalidJwtException } from './excpetions/invalid-jwt.exception';
 import { ITokenResult } from './interfaces/token-result';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class JwtService {
@@ -36,7 +37,7 @@ export class JwtService {
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign({ id }, secret, {
+    const token = jwt.sign({ id, tokid: uuid.v4() }, secret, {
       expiresIn: +refreshExpires,
     });
     const expires = new Date().getTime() + Number(refreshExpires);

@@ -17,6 +17,7 @@ import { EmailExistsException } from '../src/auth/excepctions/email-exists.excep
 import { LoginDto } from '../src/auth/dtos/login.dto';
 import { TestLogger } from './test-logger';
 import { IncorrectCredentialsException } from '../src/auth/excepctions/incorrect-credentials.exception';
+import { BadRefreshTokenException } from '../src/auth/excepctions/bad-refresh-token.exception';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -186,5 +187,29 @@ describe('AuthController (e2e)', () => {
 
     expect(resp.status).toBe(200);
   });
-  it('/auth/refresh (PATCH) 400', async () => {});
+  it('/auth/refresh (PATCH) 400', async () => {
+    const authResp = await loginExistingUser(request(app.getHttpServer()));
+
+    expect(authResp.status).toBe(201);
+
+    const { refreshToken } = authResp.body;
+
+    await request(app.getHttpServer())
+      .patch('/auth/refresh')
+      .send({ refreshToken, ...existingUserSessionMeta });
+
+    const resp = await request(app.getHttpServer())
+      .patch('/auth/refresh')
+      .send({ refreshToken, ...existingUserSessionMeta });
+    expect(resp.status).toBe(400);
+    expect(resp.body.message).toBe(new BadRefreshTokenException().message);
+  });
+
+  it('/auth/refresh PATH(400)', async () => {
+    const resp = await request(app.getHttpServer())
+      .patch('/auth/refresh')
+      .send({ refreshToken: 'ivalidrefresh', ...existingUserSessionMeta });
+    expect(resp.status).toBe(400);
+    expect(resp.body.message).toBe(new BadRefreshTokenException().message);
+  });
 });

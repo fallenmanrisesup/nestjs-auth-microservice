@@ -34,6 +34,7 @@
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/terminus": "^7.0.1",
     "@nestjs/typeorm": "^7.1.5",
+    "@types/uuid": "^8.3.0",
     "amqp-connection-manager": "^3.2.1",
     "amqplib": "^0.6.0",
     "apollo-server-express": "^2.19.2",
@@ -49,7 +50,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
     "sqlite3": "^5.0.2",
-    "typeorm": "^0.2.30"
+    "typeorm": "^0.2.30",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",

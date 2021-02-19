@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from '../users/users.service';
 import { JwtService } from '../jwt/jwt.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,6 +28,8 @@ import { PhoneInUseException } from './excepctions/phone-in-use.exception';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
@@ -101,6 +103,8 @@ export class AuthService {
       relations: ['user'],
     });
 
+    this.logger.log(refreshToken);
+
     if (!sess || sess.expires < now) {
       throw new BadRefreshTokenException();
     }
@@ -116,7 +120,13 @@ export class AuthService {
     sess.expires = refresh.expires;
     sess.refreshToken = refresh.token;
 
-    await this.sessionsRepo.save(sess);
+    this.logger.log(refresh.token);
+
+    await this.sessionsRepo.update(sess.id, {
+      refreshToken: refresh.token,
+      expires: refresh.expires,
+      ip: sess.ip,
+    });
 
     const access = await this.jwtService.createAccessToken(sess.user);
 
