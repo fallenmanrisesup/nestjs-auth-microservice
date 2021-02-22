@@ -18,8 +18,8 @@ export const existingUser: UserEntity = {
   sessions: new Array<SessionEntity>(),
   created: new Date(),
   updated: new Date(),
-  resetPasswordCode: v4(),
-  emailVerificationCode: v4(),
+  resetPasswordCode: 'constcode',
+  emailVerificationCode: 'constcode',
 };
 
 export const existingUserSessionMeta = {
@@ -28,11 +28,17 @@ export const existingUserSessionMeta = {
   deviceToken: v4(),
 };
 
-export const loadAuthFixtures = async (conn: Connection) => {
+export const loadAuthFixtures = async (
+  conn: Connection,
+  replacements: Partial<UserEntity> = {},
+) => {
   const encryption = new EncryptionService();
 
   existingUser.password = await encryption.hash(existingUserPassword);
-  await conn.getRepository(UserEntity).save(existingUser);
+  await conn.getRepository(UserEntity).save({
+    ...existingUser,
+    ...replacements,
+  });
 };
 
 export const loginExistingUser = async (

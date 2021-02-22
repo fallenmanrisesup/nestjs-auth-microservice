@@ -5,7 +5,7 @@ export class TestLogger extends Logger implements LoggerService {
     //
   }
   error(message: string, trace?: string, context?: string) {
-    super.error(message, trace, context);
+    // super.error(message, trace, context);
   }
   warn(message: string) {
     //

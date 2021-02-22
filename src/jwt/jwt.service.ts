@@ -19,14 +19,19 @@ export class JwtService {
     lang,
     email,
     phone,
+    isVerified,
   }: IJwtClaims): Promise<ITokenResult> {
     const { secret, accessExpires } = this.configService.get<
       IConfigProps['jwt']
     >('jwt');
 
-    const token = jwt.sign({ id, username, lang, email, phone }, secret, {
-      expiresIn: +accessExpires,
-    });
+    const token = jwt.sign(
+      { id, username, lang, email, phone, isVerified },
+      secret,
+      {
+        expiresIn: +accessExpires,
+      },
+    );
 
     const expires = new Date().getTime() + Number(accessExpires);
 

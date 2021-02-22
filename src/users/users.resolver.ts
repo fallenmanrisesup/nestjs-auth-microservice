@@ -1,5 +1,4 @@
 import { Args, Resolver, Query, Mutation } from '@nestjs/graphql';
-import { AuthService } from '../auth/auth.service';
 import { ListUsersArgs, ListUsersResult } from './dtos/users-pagination';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './users.service';

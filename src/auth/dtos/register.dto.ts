@@ -15,10 +15,10 @@ export class RegisterDto implements ISessionMeta {
   email: string;
 
   @IsNotEmpty()
-  @Length(3, 16)
+  @Length(2, 32)
   username: string;
 
-  @Length(8, 16)
+  @Length(8, 32)
   password: string;
 
   @ValidateIf(x => x.phone !== '' && typeof x.phone !== 'undefined')

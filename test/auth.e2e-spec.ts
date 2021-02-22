@@ -36,13 +36,12 @@ describe('AuthController (e2e)', () => {
 
     conn = await app.get<Connection>(Connection);
     app.useGlobalFilters(new ValidationExceptionFilter());
-    await conn.synchronize();
+    await conn.synchronize(true);
     await loadAuthFixtures(conn);
     await app.init();
   });
 
   afterEach(async () => {
-    await conn.dropDatabase();
     await conn.close();
   });
 
@@ -77,8 +76,8 @@ describe('AuthController (e2e)', () => {
       .post('/auth/register')
       .send(registerBody);
 
-    expect(resp.status).toBe(400);
     expect(resp.body.message).toBe(new EmailExistsException().message);
+    expect(resp.status).toBe(400);
   });
 
   it('/auth/login (POST) 201', async () => {

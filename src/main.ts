@@ -12,18 +12,18 @@ async function bootstrap() {
 
   const rmqOptions = config.get<IConfigProps['rmq']>('rmq');
 
-  await app.connectMicroservice<RmqOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [rmqOptions.url],
-      queue: rmqOptions.serviceQueueName,
-      prefetchCount: rmqOptions.prefetchCount,
-    },
-  });
+  // await app.connectMicroservice<RmqOptions>({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: [rmqOptions.url],
+  //     queue: rmqOptions.serviceQueueName,
+  //     prefetchCount: rmqOptions.prefetchCount,
+  //   },
+  // });
 
-  app.useGlobalFilters(new ValidationExceptionFilter());
+  // app.useGlobalFilters(new ValidationExceptionFilter());
 
-  await app.startAllMicroservicesAsync();
+  // await app.startAllMicroservicesAsync();
 
   await app.listen(config.get('app.port'));
 }

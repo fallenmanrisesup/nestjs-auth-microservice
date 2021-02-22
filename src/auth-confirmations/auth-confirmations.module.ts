@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { UsersModule } from '../users/users.module';
+import { AuthConfirmationsController } from './auth-confirmations.controller';
 import { AuthConfirmationsService } from './auth-confirmations.service';
 import {
   NotificationServiceClientOptionService,
@@ -17,6 +18,7 @@ import {
       },
     ]),
   ],
+  controllers: [AuthConfirmationsController],
   providers: [AuthConfirmationsService],
   exports: [AuthConfirmationsService],
 })
