@@ -52,7 +52,6 @@ export class AuthService {
     }
 
     if (phone && (await this.userService.find({ where: { phone } }))) {
-      //
       throw new PhoneInUseException();
     }
 
