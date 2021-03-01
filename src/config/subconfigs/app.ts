@@ -7,6 +7,6 @@ export interface IAppConfigProps {
 }
 
 export default registerAs<ConfigFactory<IAppConfigProps>>('app', () => ({
-  port: +process.env.PORT || 5500,
+  port: +process.env.PORT || 5001,
   envMode: process.env.NODE_ENV || 'development',
 }));

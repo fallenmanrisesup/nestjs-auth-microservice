@@ -6,7 +6,7 @@ import { Connection } from 'typeorm';
 import { AppModule } from './../src/app.module';
 import { ValidationExceptionFilter } from '../src/core/filters/validation-exception.filter';
 import { existingUser, loadAuthFixtures, loginExistingUser } from './Fixtures';
-import { TestLogger } from './test-logger';
+import { TestLogger } from './Utils/test-logger';
 import { IncorrectEmailCodeException } from '../src/auth-confirmations/exceptions/incorrect-email-code.exception';
 
 describe('AuthConfirmationsController (e2e)', () => {

@@ -20,7 +20,6 @@ export class UserService {
 
   async create(data: CreateUserInput) {
     const created = this.userRepo.create(data);
-    await this.userRepo.delete({});
     return this.userRepo.save(created);
   }
 
