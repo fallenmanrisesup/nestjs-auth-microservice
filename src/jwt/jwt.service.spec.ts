@@ -6,6 +6,7 @@ import { JwtService } from './jwt.service';
 import { v4 } from 'uuid';
 import { SessionEntity } from '../auth/entities/session.entity';
 import { InvalidJwtException } from './excpetions/invalid-jwt.exception';
+import { UserRoles } from '../users/enums/user.roles';
 
 export const existingUserPassword = faker.internet.password();
 
@@ -24,6 +25,8 @@ describe('JwtService', () => {
     updated: new Date(),
     resetPasswordCode: 'constcode',
     emailVerificationCode: 'constcode',
+    role: UserRoles.SITE_OWNER,
+    isRespondent: false,
   };
 
   beforeEach(async () => {

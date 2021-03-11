@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { SessionEntity } from '../../auth/entities/session.entity';
+import { UserRoles } from '../enums/user.roles';
 
 @Entity('users')
 @Directive('@key(fields: "id")')
@@ -66,4 +67,10 @@ export class UserEntity {
     s => s.user,
   )
   sessions: SessionEntity[];
+
+  @Column({ default: UserRoles.RESPONDENT })
+  role: UserRoles;
+
+  @Column({ default: false })
+  isRespondent: boolean;
 }

@@ -20,13 +20,15 @@ export class JwtService {
     email,
     phone,
     isVerified,
+    role,
+    isRespondent,
   }: IJwtClaims): Promise<ITokenResult> {
     const { secret, accessExpires } = this.configService.get<
       IConfigProps['jwt']
     >('jwt');
 
     const token = jwt.sign(
-      { id, username, lang, email, phone, isVerified },
+      { id, username, lang, email, role, phone, isVerified, isRespondent },
       secret,
       {
         expiresIn: +accessExpires,

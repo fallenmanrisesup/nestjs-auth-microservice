@@ -18,6 +18,11 @@ export class UserService {
     return this.userRepo.findOne(opts);
   }
 
+  async createRespondent() {
+    const user = this.userRepo.create({ isRespondent: true });
+    return this.userRepo.save(user);
+  }
+
   async create(data: CreateUserInput) {
     const created = this.userRepo.create(data);
     return this.userRepo.save(created);

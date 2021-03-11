@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -26,11 +27,19 @@ import { ISessionMeta } from './intrafeces/session-meta';
 import { RecoverPasswordDto } from './dtos/recover-password.dto';
 import { RecoverPasswordConfirmDto } from './dtos/recover-password-confirm.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
-import jwt from 'src/config/subconfigs/jwt';
 
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('/respondent')
+  async respondent(@Headers() headers, @Ip() ip) {
+    return this.authService.respondentAuth(
+      headers['User-Agent'],
+      ip,
+      headers['Device-Token'],
+    );
+  }
 
   @UsePipes(new ValidationPipe())
   @Post('/login')
@@ -81,8 +90,8 @@ export class AuthController {
   @Post('/password-reset')
   async passwordReset(
     @Claims('http') jwtClaims: IJwtClaims,
-    @Body() body: ResetPasswordDto
-    ) {
-      await this.authService.resetPassword(jwtClaims, body)
+    @Body() body: ResetPasswordDto,
+  ) {
+    await this.authService.resetPassword(jwtClaims, body);
   }
 }

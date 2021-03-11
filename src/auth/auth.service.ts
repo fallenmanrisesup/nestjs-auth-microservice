@@ -21,11 +21,12 @@ import { IncorrectRecoveryCodeException } from './excepctions/incorrect-code.exc
 import { LoginTokenDto } from './dtos/login-token.dto';
 import { SmsTokenEntity } from './entities/sms-token.entity';
 import { NoSmsTokenException } from './excepctions/no-sms-token.exception';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserEntity } from '../users/entities/user.entity';
 import { CreateSmsTokenDto } from './dtos/create-sms-token.dto';
 import { SMS_TOKEN_EXP } from './auth.consts';
 import { PhoneInUseException } from './excepctions/phone-in-use.exception';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { UserRoles } from '../users/enums/user.roles';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +43,10 @@ export class AuthService {
     private readonly authConfirmationService: AuthConfirmationsService,
   ) {}
 
-  async register({ email, username, password, phone }: RegisterDto) {
+  async register(
+    { email, username, password, phone }: RegisterDto,
+    claims?: IJwtClaims,
+  ) {
     const found = await this.userService.find({
       where: [{ email }, { username }],
     });
@@ -57,12 +61,28 @@ export class AuthService {
 
     const pwd = await this.encryptionService.hash(password);
 
-    const user = await this.userService.create({
-      email,
-      username,
-      password: pwd,
-      phone,
-    });
+    let user: UserEntity;
+    if (claims && claims.role === UserRoles.RESPONDENT) {
+      await this.userService.updateUser(
+        { id: claims.id },
+        {
+          email,
+          username,
+          password: pwd,
+          phone,
+          role: UserRoles.SITE_OWNER,
+        },
+      );
+      user = await this.userService.find({ where: { id: claims.id } });
+    } else {
+      user = await this.userService.create({
+        email,
+        username,
+        password: pwd,
+        phone,
+        role: UserRoles.SITE_OWNER,
+      });
+    }
 
     await this.authConfirmationService.sendEmailConfirmation(
       user,
@@ -236,6 +256,7 @@ export class AuthService {
 
     const user = await this.userService.create({
       phone: foundToken.phone,
+      role: UserRoles.SITE_OWNER,
     });
 
     return await this.signTokens(user, { deviceToken, ip, agent });
@@ -245,5 +266,12 @@ export class AuthService {
     const password = await this.encryptionService.hash(body.password);
 
     await this.userService.updateUser({ id: jwtClaims.id }, { password });
+  }
+
+  async respondentAuth(agent: string, ip: string, deviceToken: string) {
+    const user = await this.userService.createRespondent();
+    const tokens = await this.signTokens(user, { agent, deviceToken, ip });
+
+    return tokens;
   }
 }

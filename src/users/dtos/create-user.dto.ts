@@ -1,4 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { UserRoles } from '../enums/user.roles';
 
 @InputType()
 export class CreateUserInput {
@@ -16,4 +17,6 @@ export class CreateUserInput {
 
   @Field({ defaultValue: 'en' })
   lang?: string;
+
+  role: UserRoles;
 }
