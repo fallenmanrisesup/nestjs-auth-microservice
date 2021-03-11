@@ -1,17 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientRMQ } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { QuizServiceEvents } from '../core/events';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+} from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { CreateUserInput } from './dtos/create-user.dto';
+
 import { ListUsersArgs, ListUsersResult } from './dtos/users-pagination';
 import { UserEntity } from './entities/user.entity';
+import { UserRoles } from './enums/user.roles';
 import { UserNotFoundException } from './exceptions/not-found.exception';
+import { QUIZ_SERVICE_TOKEN } from './providers/quiz-service.client';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
+    @Inject(QUIZ_SERVICE_TOKEN)
+    private readonly quizService: ClientRMQ,
   ) {}
 
   async find(opts: FindOneOptions<UserEntity>) {
@@ -19,13 +30,22 @@ export class UserService {
   }
 
   async createRespondent() {
-    const user = this.userRepo.create({ isRespondent: true });
-    return this.userRepo.save(user);
+    const user = await this.create({
+      isRespondent: true,
+      role: UserRoles.RESPONDENT,
+    });
+
+    return user;
   }
 
-  async create(data: CreateUserInput) {
+  async create(data: DeepPartial<UserEntity>) {
     const created = this.userRepo.create(data);
-    return this.userRepo.save(created);
+    const user = await this.userRepo.save(created);
+    await this.quizService.emit(
+      QuizServiceEvents.CREATE_QUIZ_USER,
+      JSON.stringify(user),
+    );
+    return user;
   }
 
   async findByEmailOrUsername(usernameOrEmail: string): Promise<UserEntity> {

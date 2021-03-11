@@ -9,6 +9,7 @@ import { SessionEntity } from '../auth/entities/session.entity';
 import { v4 } from 'uuid';
 import { IncorrectCredentialsException } from '../auth/excepctions/incorrect-credentials.exception';
 import { IncorrectEmailCodeException } from './exceptions/incorrect-email-code.exception';
+import { UserRoles } from '../users/enums/user.roles';
 
 describe('AuthConfirmationsService', () => {
   let service: AuthConfirmationsService;
@@ -34,6 +35,8 @@ describe('AuthConfirmationsService', () => {
     updated: new Date(),
     resetPasswordCode: 'constcode',
     emailVerificationCode: 'constcode',
+    isRespondent: false,
+    role: UserRoles.SITE_OWNER,
   };
 
   beforeEach(async () => {

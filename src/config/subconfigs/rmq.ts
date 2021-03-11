@@ -7,6 +7,7 @@ export interface IRmqConfigProps {
   prefetchCount: number;
   serviceQueues: {
     notification: string;
+    quiz: string;
   };
 }
 
@@ -17,5 +18,6 @@ export default registerAs<ConfigFactory<IRmqConfigProps>>('rmq', () => ({
   serviceQueues: {
     notification:
       process.env.RMQ_NOTIFICATION_SERVICE_QUEUE_NAME || 'notification-service',
+    quiz: process.env.RMQ_QUIZ_SERVICE_QUEUE_NAME || 'quiz-service',
   },
 }));

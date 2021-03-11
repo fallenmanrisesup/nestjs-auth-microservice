@@ -8,7 +8,7 @@ import {
 import { IConfigProps } from '../../config';
 
 @Injectable()
-export class NotificationServiceClientOptionService
+export class QuizServiceClientOptionService
   implements ClientsModuleOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
   createClientOptions(): RmqOptions {
@@ -20,14 +20,11 @@ export class NotificationServiceClientOptionService
       transport: Transport.RMQ,
       options: {
         urls: [url],
-        queue: serviceQueues.notification || 'notification-service',
+        queue: serviceQueues.quiz || 'quiz-service',
+        noAck: true,
       },
     };
   }
 }
 
-export const NOTIFICATIONS_SERVICE_TOKEN = 'NOTIFICATIONS_SERVICE_TOKEN';
-
-export enum NotificationServiceEvents {
-  CREATE_USER_NOTIFICATION = 'CREATE_USER_NOTIFICATION',
-}
+export const QUIZ_SERVICE_TOKEN = 'QUIZ_SERVICE_TOKEN';

@@ -7,6 +7,7 @@ import * as faker from 'faker';
 import { SessionEntity } from '../auth/entities/session.entity';
 import { v4 } from 'uuid';
 import { UserNotFoundException } from './exceptions/not-found.exception';
+import { UserRoles } from './enums/user.roles';
 
 export const existingUserPassword = faker.internet.password();
 
@@ -25,6 +26,8 @@ describe('UsersService', () => {
     updated: new Date(),
     resetPasswordCode: 'constcode',
     emailVerificationCode: 'constcode',
+    role: UserRoles.RESPONDENT,
+    isRespondent: false,
   };
 
   const userRepoMock = {
